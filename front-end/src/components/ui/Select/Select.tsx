@@ -1,11 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FC, useEffect, useState } from 'react';
 import classes from './Select.module.css';
-
-interface SelectOption {
-  label: string;
-  value: any;
-}
+import { SelectOption } from '../../../types/SelectOption';
 
 interface SelectProps {
   options: SelectOption[];

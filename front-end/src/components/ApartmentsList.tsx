@@ -5,10 +5,12 @@ import ApartmentCard from './ApartmentCard';
 interface ApartmentsListProps {
   apartments: Apartment[];
   deleteApartment: (id: number) => void;
+  updateApartment: (apartment: Apartment) => void;
 }
 const ApartmentsList: FC<ApartmentsListProps> = ({
   apartments,
   deleteApartment,
+  updateApartment,
 }) => {
   return (
     <div>
@@ -21,6 +23,7 @@ const ApartmentsList: FC<ApartmentsListProps> = ({
             apartment={apartment}
             key={apartment.id}
             onDelete={deleteApartment}
+            onUpdate={updateApartment}
           />
         ))}
       </div>

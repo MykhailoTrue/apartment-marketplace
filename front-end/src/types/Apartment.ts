@@ -6,3 +6,5 @@ export type Apartment = {
   description: string;
   image?: string;
 };
+
+export type ApartmentToCreate = Omit<Omit<Apartment, 'id'>, 'image'>;

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import ApartmentsList from './components/ApartmentsList';
-import Select from './components/ui/Select/Select';
-import { Apartment } from './types/Apartment';
-import RoomsFilter from './components/RoomsFilter';
+import { Apartment, ApartmentToCreate } from './types/Apartment';
 import { SortedOptions } from './types/SortedOptions';
 import { useApartments, useApartmentsRooms } from './hooks/useApartments';
+import Button from './components/ui/Button';
+import Modal from './components/ui/Modal/Modal';
+import ApartmentFilter from './components/ApartmentFilter';
+import ApartmentForm from './components/ApartmentForm';
 
 const options = [
   { label: 'Price Ascending', value: SortedOptions.PriceAscending },
@@ -48,15 +50,25 @@ const initialApartments: Apartment[] = [
     price: 200,
     description: 'Apartment 5 description',
   },
+  {
+    id: 6,
+    rooms: 5,
+    name: 'Apartment 6',
+    price: 200,
+    description: 'Apartment 6 description',
+  },
 ];
 
 function App() {
   const [apartments, setApartments] = useState(initialApartments);
-  const availableRooms = useApartmentsRooms(apartments);
-
   const [selectedRooms, setSelectedRooms] = useState<number[]>([]);
   const [selectOption, setSelectOption] = useState(options[0]);
+  const [modalOpened, setModalOpened] = useState(false);
+  const [apartmentToUpdate, setApartmentToUpdate] = useState<Apartment | null>(
+    null
+  );
 
+  const availableRooms = useApartmentsRooms(apartments);
   const filteredAndSortedApartments = useApartments(
     apartments,
     selectOption.value,
@@ -68,34 +80,78 @@ function App() {
     setApartments(filtered);
   };
 
+  const updateApartment = (id: number, apartment: ApartmentToCreate) => {
+    const updated = apartments.map((a) =>
+      a.id === id ? { ...a, ...apartment } : a
+    );
+    setApartments(updated);
+  };
+
+  const addApartment = (apartment: ApartmentToCreate) => {
+    const newApartment: Apartment = {
+      ...apartment,
+      id: Math.max(...apartments.map((a) => a.id)) + 1,
+    };
+    setApartments([...apartments, newApartment]);
+  };
+
   return (
     <div>
-      <div className="flex">
-        <div className="flex flex-col gap-2 mx-2 basis-[200px]">
-          <h2 className="text-2xl font-bold">Filters</h2>
-          <h3 className="text-sm font-bold text-gray-500">Sort by</h3>
-          <Select
-            value={selectOption}
-            options={options}
-            onChange={(option) => {
-              setSelectOption(option);
+      <div className="m-4 flex">
+        <h1 className="text-3xl text-center font-bold grow">Apartments</h1>
+        <Button onClick={() => setModalOpened(true)}>Add apartment</Button>
+      </div>
+      <hr />
+      <div className="flex ">
+        <div className="flex flex-col gap-2 mx-2 basis-[200px] border-r">
+          <ApartmentFilter
+            {...{
+              availableRooms,
+              selectedRooms,
+              setSelectedRooms,
+              selectOption,
+              setSelectOption,
+              selectOptions: options,
             }}
           />
-          <hr />
-          <h3 className="text-sm font-bold text-gray-500">Rooms</h3>
-          <RoomsFilter
-            availableRooms={availableRooms}
-            selectedRooms={selectedRooms}
-            setSelectedRooms={setSelectedRooms}
-          />
         </div>
-        <div className="grow">
+        <div className="grow mx-4">
           <ApartmentsList
             apartments={filteredAndSortedApartments}
             deleteApartment={deleteApartment}
+            updateApartment={(apartment) => setApartmentToUpdate(apartment)}
           />
         </div>
       </div>
+      <Modal opened={modalOpened} onClose={() => setModalOpened(false)}>
+        <ApartmentForm
+          onSubmit={(apartment) => {
+            addApartment(apartment);
+            setModalOpened(false);
+          }}
+        />
+      </Modal>
+      <Modal
+        opened={!!apartmentToUpdate}
+        onClose={() => setApartmentToUpdate(null)}
+      >
+        <ApartmentForm
+          onSubmit={(apartment) => {
+            updateApartment(apartmentToUpdate?.id as number, apartment);
+            setApartmentToUpdate(null);
+          }}
+          initialValues={
+            apartmentToUpdate
+              ? {
+                  rooms: apartmentToUpdate?.rooms,
+                  name: apartmentToUpdate?.name,
+                  price: apartmentToUpdate?.price,
+                  description: apartmentToUpdate?.description,
+                }
+              : undefined
+          }
+        />
+      </Modal>
     </div>
   );
 }

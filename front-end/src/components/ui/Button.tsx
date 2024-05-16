@@ -11,7 +11,8 @@ const Button: FC<ButtonProps> = ({
   ...props
 }) => {
   let className =
-    'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded';
+    'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer' +
+    (props.disabled ? ' opacity-50 cursor-not-allowed' : '');
   if (props.className) {
     if (useDefaultStyle) {
       className = twMerge(className, props.className);

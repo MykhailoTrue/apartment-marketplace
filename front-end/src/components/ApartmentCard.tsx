@@ -1,15 +1,16 @@
 import { FC, useState } from 'react';
 import { Apartment } from '../types/Apartment';
 import apartmentImg from '../assets/apartment.jpg';
-import { IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import Button from './ui/Button';
 
 interface Props {
   apartment: Apartment;
   onDelete: (id: number) => void;
+  onUpdate: (apartment: Apartment) => void;
 }
 
-const ApartmentCard: FC<Props> = ({ apartment, onDelete }) => {
+const ApartmentCard: FC<Props> = ({ apartment, onDelete, onUpdate }) => {
   const [mouseIsOver, setMouseIsOver] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
 
@@ -35,17 +36,30 @@ const ApartmentCard: FC<Props> = ({ apartment, onDelete }) => {
         </Button>
       </div>
       {mouseIsOver && (
-        <Button
-          useDefaultStyle={false}
-          onClick={(e) => {
-            onDelete(apartment.id);
-            e.stopPropagation();
-          }}
-          className="stroke-white absolute right-[1px] top-[20px] -translate-y-1/2 bg-slate-600 p-2 rounded
+        <>
+          <Button
+            useDefaultStyle={false}
+            onClick={(e) => {
+              onDelete(apartment.id);
+              e.stopPropagation();
+            }}
+            className="stroke-white absolute right-[1px] top-[20px] -translate-y-1/2 bg-slate-600 p-2 rounded
           opacity-60 hover:opacity-100"
-        >
-          <IconTrash className="text-red-500" />
-        </Button>
+          >
+            <IconTrash className="text-red-500" />
+          </Button>
+          <Button
+            useDefaultStyle={false}
+            onClick={(e) => {
+              onUpdate(apartment);
+              e.stopPropagation();
+            }}
+            className="stroke-white absolute right-[41px] top-[20px] -translate-y-1/2 bg-slate-600 p-2 rounded
+        opacity-60 hover:opacity-100"
+          >
+            <IconEdit className="text-blue-500" />
+          </Button>
+        </>
       )}
     </div>
   );
