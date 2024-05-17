@@ -11,11 +11,16 @@ import {
 import { ApartmentToCreate } from '../types/Apartment';
 
 interface ApartmentFormProps {
-  onSubmit: (apartment: ApartmentToCreate) => void;
+  onSubmit: (apartment: ApartmentToCreate) => Promise<void>;
   initialValues?: ApartmentToCreate;
+  isLoading?: boolean;
 }
 
-const ApartmentForm: FC<ApartmentFormProps> = ({ onSubmit, initialValues }) => {
+const ApartmentForm: FC<ApartmentFormProps> = ({
+  onSubmit,
+  initialValues,
+  isLoading,
+}) => {
   const [formData, setFormData] = useState({
     name: '',
     roomsNumber: '',
@@ -143,7 +148,7 @@ const ApartmentForm: FC<ApartmentFormProps> = ({ onSubmit, initialValues }) => {
     setFormData((prevFormData) => ({ ...prevFormData, description }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!formValid) {
       return;
@@ -154,7 +159,7 @@ const ApartmentForm: FC<ApartmentFormProps> = ({ onSubmit, initialValues }) => {
       price: +formData.price,
       description: formData.description,
     };
-    onSubmit(apartmentToUpdate);
+    await onSubmit(apartmentToUpdate);
     clearForm();
   };
 
@@ -218,7 +223,7 @@ const ApartmentForm: FC<ApartmentFormProps> = ({ onSubmit, initialValues }) => {
         name="description"
         error={formDirty.description ? formErrors.description : undefined}
       />
-      <Button disabled={!formValid} type="submit">
+      <Button disabled={!formValid} type="submit" isLoading={isLoading}>
         Submit
       </Button>
     </form>

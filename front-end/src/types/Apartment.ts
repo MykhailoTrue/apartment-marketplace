@@ -8,3 +8,5 @@ export type Apartment = {
 };
 
 export type ApartmentToCreate = Omit<Omit<Apartment, 'id'>, 'image'>;
+
+export type ApartmentToUpdate = Partial<ApartmentToCreate>;

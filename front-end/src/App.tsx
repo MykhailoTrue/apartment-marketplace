@@ -1,12 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ApartmentsList from './components/ApartmentsList';
-import { Apartment, ApartmentToCreate } from './types/Apartment';
+import {
+  Apartment,
+  ApartmentToCreate,
+  ApartmentToUpdate,
+} from './types/Apartment';
 import { SortedOptions } from './types/SortedOptions';
 import { useApartments, useApartmentsRooms } from './hooks/useApartments';
 import Button from './components/ui/Button';
 import Modal from './components/ui/Modal/Modal';
 import ApartmentFilter from './components/ApartmentFilter';
 import ApartmentForm from './components/ApartmentForm';
+import { useFetching } from './hooks/useFetching';
+import {
+  getApartments,
+  deleteApartment as deleteApartmentService,
+  createApartment,
+  updateApartment as updateApartmentService,
+} from './services/apartmentService';
+import Loader from './components/ui/Loader';
 
 const options = [
   { label: 'Price Ascending', value: SortedOptions.PriceAscending },
@@ -14,59 +26,24 @@ const options = [
   { label: 'Rooms Number', value: SortedOptions.RoomsNumber },
 ];
 
-const initialApartments: Apartment[] = [
-  {
-    id: 1,
-    rooms: 2,
-    name: 'Apartment 1',
-    price: 100,
-    description: 'Apartment 1 description',
-  },
-  {
-    id: 2,
-    rooms: 3,
-    name: 'Apartment 2',
-    price: 200,
-    description: 'Apartment 2 description',
-  },
-  {
-    id: 3,
-    rooms: 4,
-    name: 'Apartment 3',
-    price: 300,
-    description: 'Apartment 3 description',
-  },
-  {
-    id: 4,
-    rooms: 5,
-    name: 'Apartment 4',
-    price: 400,
-    description: 'Apartment 4 description',
-  },
-  {
-    id: 5,
-    rooms: 5,
-    name: 'Apartment 5',
-    price: 200,
-    description: 'Apartment 5 description',
-  },
-  {
-    id: 6,
-    rooms: 5,
-    name: 'Apartment 6',
-    price: 200,
-    description: 'Apartment 6 description',
-  },
-];
-
 function App() {
-  const [apartments, setApartments] = useState(initialApartments);
+  const [apartments, setApartments] = useState<Apartment[]>([]);
   const [selectedRooms, setSelectedRooms] = useState<number[]>([]);
   const [selectOption, setSelectOption] = useState(options[0]);
   const [modalOpened, setModalOpened] = useState(false);
   const [apartmentToUpdate, setApartmentToUpdate] = useState<Apartment | null>(
     null
   );
+
+  const { fetching: fetchApartments, isLoading: isApartmentsLoading } =
+    useFetching(async () => {
+      const apartments = await getApartments();
+      setApartments(apartments);
+    });
+
+  useEffect(() => {
+    fetchApartments();
+  }, []);
 
   const availableRooms = useApartmentsRooms(apartments);
   const filteredAndSortedApartments = useApartments(
@@ -75,25 +52,40 @@ function App() {
     selectedRooms
   );
 
-  const deleteApartment = (id: number) => {
+  const { fetching: deleteApartment } = useFetching(async (id: number) => {
+    await deleteApartmentService(id);
     const filtered = apartments.filter((apartment) => apartment.id !== id);
     setApartments(filtered);
-  };
+  });
 
-  const updateApartment = (id: number, apartment: ApartmentToCreate) => {
-    const updated = apartments.map((a) =>
-      a.id === id ? { ...a, ...apartment } : a
+  const { fetching: updateApartment, isLoading: isApartmentUpdating } =
+    useFetching(async (id: number, apartment: ApartmentToUpdate) => {
+      const updated = (await updateApartmentService(
+        id,
+        apartment
+      )) as Apartment;
+      setApartments(
+        apartments.map((apartment) =>
+          apartment.id === id ? updated : apartment
+        )
+      );
+    });
+
+  const { fetching: addApartment, isLoading: isApartmentAdding } = useFetching(
+    async (apartment: ApartmentToCreate) => {
+      const createdApartment = (await createApartment(apartment)) as Apartment;
+      console.log(apartment);
+      setApartments([...apartments, createdApartment]);
+    }
+  );
+
+  if (isApartmentsLoading) {
+    return (
+      <div className="h-full flex justify-center items-center">
+        <Loader />
+      </div>
     );
-    setApartments(updated);
-  };
-
-  const addApartment = (apartment: ApartmentToCreate) => {
-    const newApartment: Apartment = {
-      ...apartment,
-      id: Math.max(...apartments.map((a) => a.id)) + 1,
-    };
-    setApartments([...apartments, newApartment]);
-  };
+  }
 
   return (
     <div>
@@ -125,10 +117,11 @@ function App() {
       </div>
       <Modal opened={modalOpened} onClose={() => setModalOpened(false)}>
         <ApartmentForm
-          onSubmit={(apartment) => {
-            addApartment(apartment);
+          onSubmit={async (apartment) => {
+            await addApartment(apartment);
             setModalOpened(false);
           }}
+          isLoading={isApartmentAdding}
         />
       </Modal>
       <Modal
@@ -136,10 +129,11 @@ function App() {
         onClose={() => setApartmentToUpdate(null)}
       >
         <ApartmentForm
-          onSubmit={(apartment) => {
-            updateApartment(apartmentToUpdate?.id as number, apartment);
+          onSubmit={async (apartment) => {
+            await updateApartment(apartmentToUpdate?.id as number, apartment);
             setApartmentToUpdate(null);
           }}
+          isLoading={isApartmentUpdating}
           initialValues={
             apartmentToUpdate
               ? {

@@ -4,7 +4,7 @@ import ApartmentCard from './ApartmentCard';
 
 interface ApartmentsListProps {
   apartments: Apartment[];
-  deleteApartment: (id: number) => void;
+  deleteApartment: (id: number) => Promise<void>;
   updateApartment: (apartment: Apartment) => void;
 }
 const ApartmentsList: FC<ApartmentsListProps> = ({

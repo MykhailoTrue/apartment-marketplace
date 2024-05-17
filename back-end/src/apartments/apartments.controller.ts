@@ -24,7 +24,8 @@ export class ApartmentsController {
   @Get()
   async findAll(
     @Query('order') order?: string,
-    @Query('rooms', ParseIntPipe) rooms?: number,
+    @Query('rooms', new ParseIntPipe({ optional: true }))
+    rooms?: number | undefined | null,
   ): Promise<Apartment[]> {
     return await this.apartmentsService.findAll(order, rooms);
   }

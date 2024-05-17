@@ -6,7 +6,7 @@ import Button from './ui/Button';
 
 interface Props {
   apartment: Apartment;
-  onDelete: (id: number) => void;
+  onDelete: (id: number) => Promise<void>;
   onUpdate: (apartment: Apartment) => void;
 }
 
@@ -39,9 +39,9 @@ const ApartmentCard: FC<Props> = ({ apartment, onDelete, onUpdate }) => {
         <>
           <Button
             useDefaultStyle={false}
-            onClick={(e) => {
-              onDelete(apartment.id);
+            onClick={async (e) => {
               e.stopPropagation();
+              await onDelete(apartment.id);
             }}
             className="stroke-white absolute right-[1px] top-[20px] -translate-y-1/2 bg-slate-600 p-2 rounded
           opacity-60 hover:opacity-100"
@@ -51,8 +51,8 @@ const ApartmentCard: FC<Props> = ({ apartment, onDelete, onUpdate }) => {
           <Button
             useDefaultStyle={false}
             onClick={(e) => {
-              onUpdate(apartment);
               e.stopPropagation();
+              onUpdate(apartment);
             }}
             className="stroke-white absolute right-[41px] top-[20px] -translate-y-1/2 bg-slate-600 p-2 rounded
         opacity-60 hover:opacity-100"

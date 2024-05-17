@@ -1,12 +1,15 @@
 import React, { FC } from 'react';
 import { twMerge } from 'tailwind-merge';
+import Loader from './Loader';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   useDefaultStyle?: boolean;
+  isLoading?: boolean;
 }
 
 const Button: FC<ButtonProps> = ({
   children,
+  isLoading,
   useDefaultStyle = true,
   ...props
 }) => {
@@ -19,6 +22,17 @@ const Button: FC<ButtonProps> = ({
     } else {
       className = props.className;
     }
+  }
+  if (isLoading) {
+    return (
+      <button
+        {...props}
+        className={className + ' opacity-50 cursor-not-allowed'}
+        disabled
+      >
+        <Loader></Loader>
+      </button>
+    );
   }
   return (
     <button {...props} className={className}>

@@ -43,9 +43,9 @@ export class ApartmentsService implements OnModuleInit {
 
   async findAll(order?: string, rooms?: number): Promise<Apartment[]> {
     let orderBy = '';
-    if (order.toLocaleUpperCase() === 'DESC') {
+    if (order && order.toLocaleUpperCase() === 'DESC') {
       orderBy = 'DESC';
-    } else if (order.toLocaleUpperCase() === 'ASC') {
+    } else if (order && order.toLocaleUpperCase() === 'ASC') {
       orderBy = 'ASC';
     }
     return await this.apartmentRepository.findAll({
