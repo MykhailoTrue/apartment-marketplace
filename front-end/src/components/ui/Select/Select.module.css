@@ -1,0 +1,62 @@
+.container {
+  position: relative;
+  width: 12rem;
+  min-height: 1.5rem;
+  border: 0.05rem solid #777;
+  border-radius: 0.25em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.container:focus {
+  @apply border-blue-500;
+}
+
+.value {
+  flex-grow: 1;
+}
+
+.caret {
+  border: 0.25rem solid transparent;
+  border-top-color: #777;
+  translate: 0.25rem;
+  margin: 0.5rem 0.5rem 0 0;
+}
+
+.options {
+  position: absolute;
+  width: 100%;
+  top: calc(100% + 0.25rem);
+  z-index: 100;
+  background-color: white;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: none;
+  max-height: 15rem;
+  overflow-y: auto;
+  border: 0.05rem solid #777;
+  border-radius: 0.25rem;
+}
+
+.options.open {
+  display: flex;
+  flex-direction: column;
+}
+
+.option {
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+
+.option.highlighted {
+  @apply bg-blue-200;
+}
+
+.option.selected {
+  @apply bg-blue-600 text-white;
+}
